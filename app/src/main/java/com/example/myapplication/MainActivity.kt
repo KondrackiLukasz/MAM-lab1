@@ -25,6 +25,26 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.lerp
+
+@Composable
+fun OrientationAwareBackground(
+    zValue: Float,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    val t = ((zValue + 9.8f) / 19.6f).coerceIn(0f, 1f)
+    val bgColor = lerp(start = Color.Red, stop = Color.Yellow, fraction = t)
+
+    Box(
+        modifier = modifier
+            .background(bgColor)
+            .fillMaxSize()
+    ) {
+        content()
+    }
+}
 
 @Composable
 fun Compass(azimuth: Float, modifier: Modifier = Modifier) {
@@ -89,11 +109,13 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Column {
-                        AccelerometerValues(xValue, yValue, zValue)
-                        OrientationValues(azimuth, pitch, roll)
-                        Spacer(modifier = Modifier.height(16.dp))  // optional spacer for visual separation
-                        Compass(azimuth)
+                    OrientationAwareBackground(zValue = zValue) {
+                        Column {
+                            AccelerometerValues(xValue, yValue, zValue)
+                            OrientationValues(azimuth, pitch, roll)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Compass(azimuth)
+                        }
                     }
                 }
             }
@@ -136,35 +158,40 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             }
         }
     }
-}
 
-@Composable
-fun AccelerometerValues(x: Float, y: Float, z: Float, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(text = "Accelerometer Values", style = MaterialTheme.typography.headlineMedium)
-        Text(text = "X: $x", style = MaterialTheme.typography.bodyMedium)
-        Text(text = "Y: $y", style = MaterialTheme.typography.bodyMedium)
-        Text(text = "Z: $z", style = MaterialTheme.typography.bodyMedium)
+    @Composable
+    fun AccelerometerValues(x: Float, y: Float, z: Float, modifier: Modifier = Modifier) {
+        Column(modifier = modifier) {
+            Text(text = "Accelerometer Values", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "X: $x", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Y: $y", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Z: $z", style = MaterialTheme.typography.bodyMedium)
+        }
     }
-}
 
-@Composable
-fun OrientationValues(azimuth: Float, pitch: Float, roll: Float, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(text = "Orientation Values", style = MaterialTheme.typography.headlineMedium)
-        Text(text = "Azimuth: $azimuth", style = MaterialTheme.typography.bodyMedium)
-        Text(text = "Pitch: $pitch", style = MaterialTheme.typography.bodyMedium)
-        Text(text = "Roll: $roll", style = MaterialTheme.typography.bodyMedium)
+    @Composable
+    fun OrientationValues(
+        azimuth: Float,
+        pitch: Float,
+        roll: Float,
+        modifier: Modifier = Modifier
+    ) {
+        Column(modifier = modifier) {
+            Text(text = "Orientation Values", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "Azimuth: $azimuth", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Pitch: $pitch", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Roll: $roll", style = MaterialTheme.typography.bodyMedium)
+        }
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun AccelerometerValuesPreview() {
-    MyApplicationTheme {
-        Column {
-            AccelerometerValues(0f, 0f, 0f)
-            OrientationValues(0f, 0f, 0f)
+    @Preview(showBackground = true)
+    @Composable
+    fun AccelerometerValuesPreview() {
+        MyApplicationTheme {
+            Column {
+                AccelerometerValues(0f, 0f, 0f)
+                OrientationValues(0f, 0f, 0f)
+            }
         }
     }
 }
