@@ -11,9 +11,56 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun Compass(azimuth: Float, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Compass", style = MaterialTheme.typography.headlineMedium)
+        Canvas(
+            modifier = Modifier
+                .size(200.dp)
+                .padding(16.dp)
+        ) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
+
+            drawCircle(
+                color = Color.Gray,
+                center = Offset(x = canvasWidth / 2, y = canvasHeight / 2),
+                radius = size.minDimension / 2,
+                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
+            )
+
+            rotate(degrees = -azimuth) {
+                drawLine(
+                    color = Color.Red,
+                    start = Offset(x = canvasWidth / 2, y = canvasHeight / 2),
+                    end = Offset(x = canvasWidth / 2, y = 0f),
+                    strokeWidth = 2.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
+            }
+        }
+    }
+}
 
 class MainActivity : ComponentActivity(), SensorEventListener {
 
@@ -45,6 +92,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
                     Column {
                         AccelerometerValues(xValue, yValue, zValue)
                         OrientationValues(azimuth, pitch, roll)
+                        Spacer(modifier = Modifier.height(16.dp))  // optional spacer for visual separation
+                        Compass(azimuth)
                     }
                 }
             }
